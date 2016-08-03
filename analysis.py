@@ -23,6 +23,15 @@ def isolated(url, cid):     #从html主体中分离出用户信息{{{
     com_url = html_contents.find("input", {"name":"com_url"})['value']                      #获取网址
     com_desc = html_contents.find("textarea", {"name":"com_des"}).string                    #获取描述
 
+    #获取分类
+    category_array = []
+    scope = html_contents.find("span", {"class":"scope"}).findAll("a")
+    if len(scope) > 0:
+        for cat in scope:
+            cat_string = charset_utf8(cat.string)
+            category_array.append(cat_string)
+    company_category = json.dumps(category_array)
+
     #获取slogan
     com_slogan = ""
     info_line = html_contents.findAll("div", {"class":"info-line"})
@@ -62,7 +71,7 @@ def isolated(url, cid):     #从html主体中分离出用户信息{{{
     company_status = charset_utf8(com_status.string)    #运营状态
     company_scale = charset_utf8(com_scale.string)      #公司规模
 
-    insert_db(juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_slogan, company_born, company_status, company_scale)
+    insert_db(juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)
 #}}}
 
 def get_soup(url):    #返回页面html主体{{{
@@ -100,15 +109,17 @@ def charset_utf8(field):    #{{{
     return new_field
 #}}}
 
-def insert_db(juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_slogan, company_born, company_status, company_scale):  #{{{
+def insert_db(juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale):  #{{{
     company_obj = {
         'juzi_id' : juzi_id,
         'company_name' : company_name,
         'company_sec_name' : company_sec_name,
         'company_full_name' : company_full_name,
         'company_url' : company_url,
-        'company_slogan' : company_slogan,
         'company_tags' : company_tags,
+        'company_category' : company_category,
+        'company_slogan' : company_slogan,
+        'company_description' : company_description,
         'company_born' : company_born,
         'company_status' : company_status,
         'company_scale' : company_scale,
@@ -118,8 +129,8 @@ def insert_db(juzi_id, company_name, company_sec_name, company_full_name, compan
     print '----执行插入数据'
     conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
     cursor = conn.cursor()
-    sql = "insert into user (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_slogan, company_description, company_born, company_status, company_scale)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    cursor.execute(sql, (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_slogan, company_description, company_born, company_status, company_scale))
+    sql = "insert into user (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor.execute(sql, (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale))
     conn.commit()
     conn.close()
     print '==============================================='
