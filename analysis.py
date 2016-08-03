@@ -12,7 +12,8 @@ def isolated(url, cid):     #从html主体中分离出用户信息{{{
     #print html_contents
     #sys.exit()
     if html_contents == None:
-        print '----没有获取到内容,更换下一个url'
+        insert_faild(cid)
+        print '更换下一个url'
         print '==================================='
         return None
 
@@ -30,7 +31,7 @@ def isolated(url, cid):     #从html主体中分离出用户信息{{{
         for cat in scope:
             cat_string = charset_utf8(cat.string)
             category_array.append(cat_string)
-    company_category = json.dumps(category_array)
+    company_category = json.dumps(category_array, ensure_ascii=False)
 
     #获取slogan
     com_slogan = ""
@@ -47,18 +48,28 @@ def isolated(url, cid):     #从html主体中分离出用户信息{{{
         for tag in com_tags:
             tag_string = charset_utf8(tag.string)
             tags_array.append(tag_string)
-    company_tags = json.dumps(tags_array)
+    company_tags = json.dumps(tags_array, ensure_ascii=False)
 
     #获取注册时间
-    com_born_year = html_contents.find("select", {"name":"com_born_year"}).findAll('option', selected=True)[0]
-    com_born_month = html_contents.find("select", {"name":"com_born_month"}).findAll('option', selected=True)[0]
-    com_born = "%s-%s" % (com_born_year.string, com_born_month.string)
+    born = html_contents.find("select", {"name":"com_born_year"}).findAll('option', selected=True)
+    com_born = ""
+    if len(born) > 0:
+        com_born_year = html_contents.find("select", {"name":"com_born_year"}).findAll('option', selected=True)[0]
+        com_born_month = html_contents.find("select", {"name":"com_born_month"}).findAll('option', selected=True)[0]
+        com_born = "%s-%s" % (com_born_year.string, com_born_month.string)
 
     #获取运营状态
-    com_status = html_contents.find("select", {"name":"com_status_id"}).findAll('option', selected=True)[0]
+    status = html_contents.find("select", {"name":"com_status_id"}).findAll('option', selected=True)
+    com_status = ""
+    if len(status) > 0:
+        com_status = html_contents.find("select", {"name":"com_status_id"}).findAll('option', selected=True)[0]
 
     #获取公司规模
-    com_scale = html_contents.find("select", {"name":"com_scale"}).findAll('option', selected=True)[0]
+    scale = html_contents.find("select", {"name":"com_scale"}).findAll('option', selected=True)
+    com_scale = ""
+    if len(scale) > 0:
+        scale_obj = html_contents.find("select", {"name":"com_scale"}).findAll('option', selected=True)[0]
+        com_scale = scale_obj.string
 
     juzi_id = int(cid)                                  #所属IT桔子ID
     company_name = charset_utf8(com_name)               #公司名称
@@ -69,7 +80,7 @@ def isolated(url, cid):     #从html主体中分离出用户信息{{{
     company_description = charset_utf8(com_desc)        #公司描述
     company_born = charset_utf8(com_born)               #注册日期
     company_status = charset_utf8(com_status.string)    #运营状态
-    company_scale = charset_utf8(com_scale.string)      #公司规模
+    company_scale = charset_utf8(com_scale)      #公司规模
 
     insert_db(juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)
 #}}}
@@ -124,17 +135,49 @@ def insert_db(juzi_id, company_name, company_sec_name, company_full_name, compan
         'company_status' : company_status,
         'company_scale' : company_scale,
     }
-    pprint.pprint(company_obj, width=1)
-    sys.exit()
-    print '----执行插入数据'
+    #pprint.pprint(company_obj, width=1)
+    juzi_id_count = check_juzi_id(juzi_id)
+
     conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
     cursor = conn.cursor()
-    sql = "insert into user (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    cursor.execute(sql, (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale))
+    if juzi_id_count > 0:
+        print '----执行更新数据'
+        sql = "update company set company_name='%s', company_sec_name='%s', company_full_name='%s', company_url='%s', company_tags='%s', company_category='%s', company_slogan='%s', company_description='%s', company_born='%s', company_status='%s', company_scale='%s' where juzi_id=%s"
+        cursor.execute(sql, [company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale, juzi_id])
+        #检查faild表,如果有此id则删除
+        sql = "select id from faild where juzi_id = %s"
+        if cursor.execute(sql, [juzi_id]) > 0:
+            sql = "delete from faild where juzi_id = %s"
+            cursor.execute(sql, [juzi_id])
+            print '------从faild表删除'
+    else:
+        print '----执行插入数据'
+        sql = "insert into company (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sql, [juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale])
     conn.commit()
     conn.close()
     print '==============================================='
 #}}}
+
+def insert_faild(cid):
+    juzi_id_count = check_juzi_id(cid)
+    if juzi_id_count > 0:
+        print '----此id已存在'
+    else:
+        conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
+        cursor = conn.cursor()
+        sql = "insert into faild (juzi_id)values(%s)"
+        cursor.execute(sql, [cid])
+        conn.commit()
+        conn.close()
+        print '----没获取到内容,已记录失败的id'
+
+def check_juzi_id(juzi_id):
+    conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
+    cursor = conn.cursor()
+    sql = "select id from company where juzi_id = %s"
+    count = cursor.execute(sql, [juzi_id])
+    return count
 
 def rand_ip():  #随机获取一个代理IP{{{
     fp = open('proxy.txt', 'r')
@@ -162,4 +205,9 @@ def ReadFile(fp, start_line, read_scope):   #读取文件中的某一行{{{
 #}}}
 
 if __name__ == '__main__':
-    isolated('http://www.itjuzi.com/company/', 36079)
+    #isolated('http://www.itjuzi.com/company/', 36079)
+    if len(sys.argv) < 2:
+        print "请输入要插入数据的itjuziID"
+        sys.exit()
+    cid = int(sys.argv[1])
+    isolated('http://www.itjuzi.com/company/', cid)
