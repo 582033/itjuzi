@@ -1,8 +1,12 @@
+#!/usr/bin/env python
 # -*- coding:utf8 -*-
 import time
 from analysis import isolated
 
-def loop_url():
+
+if __name__ == '__main__':
     url = 'http://www.itjuzi.com/company/'
-    #time.sleep(11)
-loop_url()
+    for i in range(1, 10):
+        print i
+        isolated(url, i)
+        time.sleep(3)
