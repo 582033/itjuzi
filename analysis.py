@@ -143,7 +143,7 @@ def insert_db(juzi_id, company_name, company_sec_name, company_full_name, compan
     if juzi_id_count > 0:
         print '----执行更新数据'
         sql = "update company set company_name='%s', company_sec_name='%s', company_full_name='%s', company_url='%s', company_tags='%s', company_category='%s', company_slogan='%s', company_description='%s', company_born='%s', company_status='%s', company_scale='%s' where juzi_id=%s"
-        cursor.execute(sql, [company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale, juzi_id])
+        cursor.execute(sql % (company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale, juzi_id))
         #检查faild表,如果有此id则删除
         sql = "select id from faild where juzi_id = %s"
         if cursor.execute(sql, [juzi_id]) > 0:
