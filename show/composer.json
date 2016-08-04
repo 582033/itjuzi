@@ -1,6 +1,0 @@
-{
-    "require": {
-        "simplon/mysql": ">=1.0.4",
-        "gigablah/sphinxphp": "2.0.*"
-    }
-}
