@@ -148,13 +148,13 @@ def insert_db(juzi_id, company_name, company_sec_name, company_full_name, compan
         print '----执行插入数据'
         sql = "insert into company (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, [juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale])
-    check_faild_id(juzi_id) #检查faild表,如果有此id则删除
+    delete_faild_id(juzi_id) #检查faild表,如果有此id则删除
     conn.commit()
     conn.close()
     print '==============================================='
 #}}}
 
-def check_faild_id(juzi_id):
+def delete_faild_id(juzi_id):
     conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
     cursor = conn.cursor()
     sql = "select id from faild where juzi_id = %s"
@@ -166,24 +166,34 @@ def check_faild_id(juzi_id):
     conn.commit()
     conn.close()
 
-def insert_faild(cid):
-    juzi_id_count = check_juzi_id(cid)
-    if juzi_id_count > 0:
-        print '----此id已存在'
-    else:
+def check_faild_id(juzi_id):
+    conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
+    cursor = conn.cursor()
+    sql = "select id from faild where juzi_id = %s"
+    count = cursor.execute(sql, [juzi_id])
+    conn.close()
+    return count
+
+def insert_faild(juzi_id):
+    juzi_id_count = check_juzi_id(juzi_id)
+    faild_id_count = check_faild_id(juzi_id)
+    #当company表有数据并且faild表无数据时
+    if juzi_id_count <= 0 and faild_id_count <= 0:
         conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
         cursor = conn.cursor()
+        #todo 有则过,无则插入
         sql = "insert into faild (juzi_id)values(%s)"
-        cursor.execute(sql, [cid])
+        cursor.execute(sql, [juzi_id])
+        print '----没获取到内容,已记录失败的id'
         conn.commit()
         conn.close()
-        print '----没获取到内容,已记录失败的id'
 
 def check_juzi_id(juzi_id):
     conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
     cursor = conn.cursor()
     sql = "select id from company where juzi_id = %s"
     count = cursor.execute(sql, [juzi_id])
+    conn.close()
     return count
 
 def rand_ip():  #随机获取一个代理IP{{{

@@ -26,8 +26,8 @@ def loop(flist):
 #多线程补遗
 if __name__ == '__main__':
     thread_count = 10
-    start = 0
-    end = 3000
+    start = 3000
+    end = 7000
     workload = (end - start) / thread_count
     queue = Queue()
     for i in range(1, thread_count):
