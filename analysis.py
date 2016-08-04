@@ -144,20 +144,27 @@ def insert_db(juzi_id, company_name, company_sec_name, company_full_name, compan
         print '----执行更新数据'
         sql = "update company set company_name='%s', company_sec_name='%s', company_full_name='%s', company_url='%s', company_tags='%s', company_category='%s', company_slogan='%s', company_description='%s', company_born='%s', company_status='%s', company_scale='%s' where juzi_id=%s"
         cursor.execute(sql % (company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale, juzi_id))
-        #检查faild表,如果有此id则删除
-        sql = "select id from faild where juzi_id = %s"
-        if cursor.execute(sql, [juzi_id]) > 0:
-            sql = "delete from faild where juzi_id = %s"
-            cursor.execute(sql, [juzi_id])
-            print '------从faild表删除'
     else:
         print '----执行插入数据'
         sql = "insert into company (juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, [juzi_id, company_name, company_sec_name, company_full_name, company_url, company_tags, company_category, company_slogan, company_description, company_born, company_status, company_scale])
+    check_faild_id(juzi_id) #检查faild表,如果有此id则删除
     conn.commit()
     conn.close()
     print '==============================================='
 #}}}
+
+def check_faild_id(juzi_id):
+    conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='itjuzi', charset='utf8')
+    cursor = conn.cursor()
+    sql = "select id from faild where juzi_id = %s"
+    count = cursor.execute(sql, [juzi_id])
+    if count > 0:
+        sql_del = "delete from faild where juzi_id = %s" % (juzi_id)
+        cursor.execute(sql_del)
+        print '------从faild表删除成功的ID'
+    conn.commit()
+    conn.close()
 
 def insert_faild(cid):
     juzi_id_count = check_juzi_id(cid)
