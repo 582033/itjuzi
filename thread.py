@@ -9,12 +9,12 @@ def loop(start, end):
     url = 'http://www.itjuzi.com/company/'
     for i in range(start, end):
         isolated(url, i)
-        time.sleep(1)
+        time.sleep(0.5)
 
 if __name__ == '__main__':
     thread_count = 10
-    start = 20000
-    end = 40000
+    start = 40000
+    end = 43000
     workload = (end - start) / thread_count
     for i in range(1, thread_count):
         t_start = start + workload * i

@@ -21,13 +21,13 @@ def loop(flist):
     url = 'http://www.itjuzi.com/company/'
     for i in flist:
         isolated(url, i)
-        time.sleep(1)
+        time.sleep(0.5)
 
 #多线程补遗
 if __name__ == '__main__':
-    thread_count = 10
-    start = 3000
-    end = 7000
+    thread_count = 20
+    start = 0
+    end = 8200
     workload = (end - start) / thread_count
     queue = Queue()
     for i in range(1, thread_count):

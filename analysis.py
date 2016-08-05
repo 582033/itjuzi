@@ -100,9 +100,9 @@ def get_soup(url):    #返回页面html主体{{{
             print '--连接异常,更换代理'
             continue
         break
-    count = re.findall('<div class="line-title">', html.text)
-    print '--打开,url成功,成功匹配到公司名'
+    print '--打开,url成功'
     #sys.exit()
+    count = re.findall('<div class="line-title">', html.text)
     if len(count) < 1:
         print '--没有匹配到公司'
         return None
