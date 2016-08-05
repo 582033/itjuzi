@@ -13,7 +13,7 @@ def loop(start, end):
 
 if __name__ == '__main__':
     thread_count = 10
-    start = 40000
+    start = 0
     end = 43000
     workload = (end - start) / thread_count
     for i in range(1, thread_count):

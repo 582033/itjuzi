@@ -5,7 +5,6 @@ from analysis import isolated
 from Queue import Queue
 from threading import Thread
 
-
 if __name__ == '__main__':
     url = 'http://www.itjuzi.com/company/'
     start = int(sys.argv[1])
