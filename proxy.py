@@ -6,7 +6,6 @@ import requests
 
 class proxy():
     def __init__(self):
-        pass
         self.url = "http://www.xicidaili.com/nt/"
         self.headers = {
             'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
@@ -20,6 +19,7 @@ class proxy():
         if len(h) > 0:
             for i in h:
                 ip_port = ( "%s:%s" % i).encode('utf-8')
+                #todo 验证代理后再append
                 proxy.append(ip_port)
         return proxy
 
