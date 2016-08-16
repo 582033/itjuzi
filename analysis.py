@@ -3,6 +3,7 @@
 import requests, json, re, sys, MySQLdb, cookielib
 import random, pprint
 from bs4 import BeautifulSoup
+from __init__ import *
 
 
 def isolated(url, cid):     #从html主体中分离出用户信息{{{
@@ -91,7 +92,7 @@ def get_soup(url):    #返回页面html主体{{{
         'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36'
     }
     while True:
-        ip_address = rand_ip()
+        ip_address = random.choice(PROXIES)
         print '--使用代理IP:' + ip_address
         try:
             html = requests.get(url, proxies = {'http':ip_address}, headers=headers, timeout=5)
@@ -195,31 +196,6 @@ def check_juzi_id(juzi_id):
     count = cursor.execute(sql, [juzi_id])
     conn.close()
     return count
-
-def rand_ip():  #随机获取一个代理IP{{{
-    fp = open('proxy.txt', 'r')
-    lines = int(len(fp.readlines()))
-    num = random.randint(0, lines - 1)
-    fp.close()
-    fp = open('proxy.txt', 'r')
-    ip =  ReadFile(fp, num, 1)
-    fp.close()
-    return ip
-#}}}
-
-def ReadFile(fp, start_line, read_scope):   #读取文件中的某一行{{{
-     lines = fp.readlines()
-     cursor = 0
-     for line in lines:
-         line = line.rstrip()
-         cursor += 1
-         while (cursor > start_line):
-             return line
-             if (cursor == (start_line+read_scope)):
-                 cursor = 0
-             break
-     fp.close()
-#}}}
 
 if __name__ == '__main__':
     #isolated('http://www.itjuzi.com/company/', 36079)
