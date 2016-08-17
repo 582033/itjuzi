@@ -19,7 +19,7 @@ class Proxy():
     def get(self):
         header = {}
         html = requests.get(self.proxy_url, headers=self.headers).text
-        h = re.findall(r'<td>(\d+\.\d+\.\d+\.\d+)</td>\s+<td>(\d+)</td>', html)
+        h = re.findall(r'<td.*?>(\d+\.\d+\.\d+\.\d+)</td>\s*<td.*?>(\d+)</td>', html)
         proxies = []
         if len(h) > 0:
             for i in h:
@@ -28,6 +28,7 @@ class Proxy():
                 proxies.append(ip_port)
 
         #创建线程,检查代理有效性
+        print proxies
         proxy_queue = Queue.Queue()
         threads = []
         for proxy in proxies:
