@@ -3,8 +3,10 @@
 import requests, json, re, sys, MySQLdb, cookielib
 import random, pprint
 from bs4 import BeautifulSoup
-from __init__ import *
 
+def set_global(var):
+    global PROXIES
+    PROXIES = var
 
 def isolated(url, cid):     #从html主体中分离出用户信息{{{
     url = url + str(cid)
