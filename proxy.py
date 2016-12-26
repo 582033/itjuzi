@@ -19,7 +19,7 @@ class Proxy():
     def get(self):
         header = {}
         html = requests.get(self.proxy_url, headers=self.headers).text
-        h = re.findall(r'<td.*?>(\d+\.\d+\.\d+\.\d+)</td>\s*<td.*?>(\d+)</td>', html)
+        h = re.findall(r'<td.*?>(\d+\.\d+\.\d+\.\d+)</td>\s*<td.*?>(\d+)</td>|(\d+\.\d+\.\d+\.\d+:\d+)', html)
         proxies = []
         if len(h) > 0:
             for i in h:
@@ -65,6 +65,7 @@ class Proxy():
 
 
 if __name__ == '__main__':
+    #proxy_url = "www.66ip.cn/mo.php?sxb=&tqsl=99&port=&export=&ktip=&sxa=&submit=%CC%E1++%C8%A1&textarea="
     proxy_url = "http://www.xicidaili.com/nt/"
     target_url = "http://www.itjuzi.com/company/1"
     ver_keyword = "com_id"
