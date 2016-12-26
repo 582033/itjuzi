@@ -23,7 +23,10 @@ class Proxy():
         proxies = []
         if len(h) > 0:
             for i in h:
-                ip_port = ( "%s:%s" % i).encode('utf-8')
+                if len(i) > 2:
+                    ip_port = ( "%s:%s%s" % i).encode('utf-8')
+                else:
+                    ip_port = ( "%s" % i).encode('utf-8')
                 #todo 验证代理后再append
                 proxies.append(ip_port)
 
@@ -65,7 +68,7 @@ class Proxy():
 
 
 if __name__ == '__main__':
-    #proxy_url = "www.66ip.cn/mo.php?sxb=&tqsl=99&port=&export=&ktip=&sxa=&submit=%CC%E1++%C8%A1&textarea="
+    #proxy_url = "http://www.66ip.cn/mo.php?sxb=&tqsl=99&port=&export=&ktip=&sxa=&submit=%CC%E1++%C8%A1&textarea="
     proxy_url = "http://www.xicidaili.com/nt/"
     target_url = "http://www.itjuzi.com/company/1"
     ver_keyword = "com_id"
